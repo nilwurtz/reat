@@ -1,0 +1,33 @@
+name: setup_rust
+description: Setup Rust
+
+inputs:
+  version:
+    required: false
+    description: Rust version.
+    default: 1.64.0
+
+runs:
+  using: composite
+  steps:
+    - name: setup rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: ${{ inputs.version }}
+        override: true
+        components: clippy
+
+    - name: git-restore-mtime
+      uses: chetan/git-restore-mtime-action@v1.0
+
+    - name: cache/restore cargo
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
